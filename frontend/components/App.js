@@ -15,24 +15,25 @@ export default class App extends React.Component {
     todoNameInput: '', //where the raw material of a newly inputted todo lives
   }
 
+  // METHODS
   onTodoNameInputChange = (e) => {
     const { value } = e.target //always do this first!!
     // debugger
     this.setState({ ...this.state, todoNameInput: value })
   }
 
+  resetForm = () => this.setState({ ...this.state, todoNameInput: '' })
+
+  axiosErrMessage = (err) => this.setState({ ...this.state, error: err.response.data.message})
+
   postNewTodo = () => {
     axios.post(URL, {name: this.state.todoNameInput})
       .then(res => {
         // debugger
-        this.fetchAllTodos(
-        this.setState({ ...this.state, todoNameInput: '' })
-        )
+        this.fetchAllTodos();
+        this.resetForm();
       })
-      .catch(err => {
-        // debugger
-        this.setState({ ...this.state, error: err.response.data.message})
-      })
+      .catch(this.axiosErrMessage)
   }
 
   onTodoFormSubmit = (e) => {
@@ -49,10 +50,7 @@ export default class App extends React.Component {
         // dont forget to use debugger to let you see deeper via the browser dev tools what the data structure looks like and what lives on the res object
         this.setState({ ...this.state, todos: res.data.data })
       })
-      .catch(err => {
-        // debugger
-        this.setState({ ...this.state, error: err.response.data.message})
-      })
+      .catch(this.axiosErrMessage)
   }
 
   componentDidMount() {
