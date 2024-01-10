@@ -12,6 +12,13 @@ export default class App extends React.Component {
   state = {
     todos: [],
     error: '',
+    todoNameInput: '',
+  }
+
+  onTodoNameInputChange = (e) => {
+    const { value } = e.target //always do this first!!
+    // debugger
+    this.setState({ ...this.state, todoNameInput: value })
   }
 
   // fetch method
@@ -49,7 +56,7 @@ export default class App extends React.Component {
           }
         </div>
         <form action="" id="todoForm">
-          <input type="text" placeholder='Type todo'></input>
+          <input value={this.state.todoNameInput} onChange={this.onTodoNameInputChange} type="text" placeholder='Type todo'></input>
           <input type="submit"></input>
           <button>Clear Completed</button>
         </form>
