@@ -1,5 +1,7 @@
 import React from 'react';
 import axios from 'axios';
+import Form from './Form';
+import TodoList from './TodoList';
 
 const URL = 'http://localhost:9000/api/todos'
 /**
@@ -81,24 +83,18 @@ export default class App extends React.Component {
     return (
       <div>
         <div id="error">{this.state.error}</div>
-        <div id="todos">
-          <h2>Todos:</h2>
-          {/* dynamically add or hide the todos into the JSX. Initially done with map when we were only adding to the list, but then changed to reduce to accomplish the hiding functionality to hide completed tasks */}
-          {
-            this.state.todos.reduce((acc, td) => {
-              if (this.state.displayCompleted || !td.completed) return acc.concat(
-                <div onClick={this.toggleCompleted(td.id)} key={td.id}>{td.name} {td.completed ? ' ✔️' : ''}</div>
-              );
-              return acc;
-            }, [])
-            // initialized to an empty array at first, and if the todo is completed, it will be concatenated into the array
-          }
-        </div>
-        <form action="" id="todoForm" onSubmit={this.onTodoFormSubmit}>
-          <input value={this.state.todoNameInput} onChange={this.onTodoNameInputChange} type="text" placeholder='Type todo'></input>
-          <input type="submit"></input>
-        </form>
-        <button onClick={this.toggleDisplayCompleted}>{this.state.displayCompleted ? 'Hide' : 'Show'} Completed</button>
+        <TodoList 
+          todos={this.state.todos}
+          displayCompleted={this.state.displayCompleted}
+          toggleCompleted={this.toggleCompleted}
+        />
+        <Form
+          onTodoFormSubmit={this.onTodoFormSubmit}
+          onTodoNameInputChange={this.onTodoNameInputChange}
+          toggleDisplayCompleted={this.toggleDisplayCompleted}
+          todoNameInput={this.state.todoNameInput}
+          displayCompleted={this.state.displayCompleted}
+        />
       </div>
     )
   }
