@@ -13,6 +13,7 @@ export default class App extends React.Component {
     todos: [],
     error: '',
     todoNameInput: '', //where the raw material of a newly inputted todo lives
+    displayCompleted: true,
   }
 
   // METHODS
@@ -30,7 +31,7 @@ export default class App extends React.Component {
     axios.post(URL, {name: this.state.todoNameInput})
       .then(res => {
         // debugger
-        this.fetchAllTodos();
+        this.setState({ ...this.state, todos: this.state.todos.concat(res.data.data) })
         this.resetForm();
       })
       .catch(this.axiosErrMessage)
@@ -53,6 +54,24 @@ export default class App extends React.Component {
       .catch(this.axiosErrMessage)
   }
 
+  toggleCompleted = id => () => { //this is called partial application
+    // returns a click handler
+    axios.patch(`${URL}/${id}`)
+      .then(res => {
+        // debugger
+        this.setState({ 
+          ...this.state, todos: this.state.todos.map(td => {
+            if (td.id !== id) return td;
+            return res.data.data
+        })})
+      })
+      .catch(this.axiosErrMessage)
+  }
+
+  toggleDisplayCompleted = () => {
+    this.setState({ ...this.state, displayCompleted: !this.state.displayCompleted })
+  }
+
   componentDidMount() {
     // this is a helper fxn to fetch all todos from server
     this.fetchAllTodos()
@@ -64,18 +83,22 @@ export default class App extends React.Component {
         <div id="error">{this.state.error}</div>
         <div id="todos">
           <h2>Todos:</h2>
-          {/* dynamically add the todos into the JSX */}
+          {/* dynamically add or hide the todos into the JSX. Initially done with map when we were only adding to the list, but then changed to reduce to accomplish the hiding functionality to hide completed tasks */}
           {
-            this.state.todos.map(todo => {
-              return <div key={todo.id}>{todo.name}</div>
-            })
+            this.state.todos.reduce((acc, td) => {
+              if (this.state.displayCompleted || !td.completed) return acc.concat(
+                <div onClick={this.toggleCompleted(td.id)} key={td.id}>{td.name} {td.completed ? ' ✔️' : ''}</div>
+              );
+              return acc;
+            }, [])
+            // initialized to an empty array at first, and if the todo is completed, it will be concatenated into the array
           }
         </div>
         <form action="" id="todoForm" onSubmit={this.onTodoFormSubmit}>
           <input value={this.state.todoNameInput} onChange={this.onTodoNameInputChange} type="text" placeholder='Type todo'></input>
           <input type="submit"></input>
-          <button>Clear Completed</button>
         </form>
+        <button onClick={this.toggleDisplayCompleted}>{this.state.displayCompleted ? 'Hide' : 'Show'} Completed</button>
       </div>
     )
   }
